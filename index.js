@@ -2,6 +2,8 @@ const fs = require("fs");
 const http = require("http");
 const url = require("url");
 
+const replaceTemplate = require("./module/replaceTemplate");
+
 ////////////////////////////////////////FILE////////////
 // //blocking, synchronous code
 // const textIn = fs.readFileSync('./txt/test.txt', 'utf-8');
@@ -24,23 +26,6 @@ const url = require("url");
 // });
 
 ////////////////////////////////////////SERVER////////////
-
-const replaceTemplate = (temp, product) => {
-  let output = temp.replace(/{%PRODUCTNAME%}/g, product.productName);
-  output = output.replace(/{%IMAGE%}/g, product.image);
-  output = output.replace(/{%PRODUCTNUTRIENTSNAME%}/g, product.nutrients);
-  output = output.replace(/{%QUANTITY%}/g, product.quantity);
-  output = output.replace(/{%FROM%}/g, product.from);
-  output = output.replace(/{%PRICE%}/g, product.price);
-  output = output.replace(/{%DESCRIPTION%}/g, product.description);
-  output = output.replace(/{%ID%}/g, product.id);
-
-  if (!product.organic) {
-    output = output.replace(/{%NOT_ORGANIC%}/g, "not-organic");
-  }
-  return output;
-};
-
 const templateOverview = fs.readFileSync(
   `${__dirname}/templates/template-overview.html`,
   "utf-8"
@@ -61,8 +46,8 @@ const server = http.createServer((req, res) => {
   //Overview
   if (pathname === "/" || pathname === "/overview") {
     res.writeHead(200, { "Content-type": "text/html" }); //tell the browser that we're sending Overview
-    const cartHtml = dataObj.map((el) => replaceTemplate(templateCard, el)).join("");
-    const output = templateOverview.replace("{%PRODUCT_CARDS%}", cartHtml);
+    const cardHtml = dataObj.map((el) => replaceTemplate(templateCard, el)).join("");
+    const output = templateOverview.replace("{%PRODUCT_CARDS%}", cardHtml);
     res.end(output);
     //Product
   } else if (pathname === "/product") {
